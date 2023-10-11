@@ -1,3 +1,4 @@
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationError, ValidationErrors};
 
@@ -9,8 +10,9 @@ use crate::common::types::{DimId, DimWeight};
 /// - indices to be unique
 /// - indices and values to be the same length
 /// - indices and values to be non-empty
-/// - indices to be sorted TODO(sparse) this is not validated yet
-#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
+/// - indices to be sorted
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
 pub struct SparseVector {
     pub indices: Vec<DimId>,
     pub values: Vec<DimWeight>,

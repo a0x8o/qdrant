@@ -44,6 +44,15 @@ impl<'a> CowValue<'a> {
     }
 }
 
+impl<'a> From<Vector> for CowValue<'a> {
+    fn from(v: Vector) -> Self {
+        match v {
+            Vector::Dense(v) => CowValue::Dense(Cow::Owned(v)),
+            Vector::Sparse(v) => CowValue::Sparse(Cow::Owned(v)),
+        }
+    }
+}
+
 impl<'a> NamedVectors<'a> {
     pub fn from_ref(key: &'a str, value: VectorRef<'a>) -> Self {
         let mut map = TinyMap::new();
@@ -66,11 +75,11 @@ impl<'a> NamedVectors<'a> {
         }
     }
 
-    pub fn from_map(map: HashMap<String, Vec<VectorElementType>>) -> Self {
+    pub fn from_map(map: HashMap<String, Vector>) -> Self {
         Self {
             map: map
                 .into_iter()
-                .map(|(k, v)| (CowKey::from(k), CowValue::Dense(Cow::Owned(v))))
+                .map(|(k, v)| (CowKey::from(k), v.into()))
                 .collect(),
         }
     }
@@ -137,16 +146,13 @@ impl<'a> NamedVectors<'a> {
 
     pub fn preprocess<F>(&mut self, distance_map: F)
     where
-        F: Fn(&str) -> Distance,
+        F: Fn(&str) -> Option<Distance>,
     {
         for (name, vector) in self.map.iter_mut() {
             let distance = distance_map(name);
-            match vector {
-                CowValue::Dense(v) => {
-                    let preprocessed_vector = distance.preprocess_vector(v.to_vec());
-                    *vector = CowValue::Dense(Cow::Owned(preprocessed_vector))
-                }
-                CowValue::Sparse(_) => {}
+            if let (CowValue::Dense(v), Some(distance)) = (&vector, distance) {
+                let preprocessed_vector: Vector = distance.preprocess_vector(v.to_vec()).into();
+                *vector = preprocessed_vector.into();
             }
         }
     }

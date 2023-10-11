@@ -325,7 +325,7 @@ impl SegmentsSearcher {
                                 let mut selected_vectors = NamedVectors::default();
                                 for vector_name in vector_names {
                                     if let Some(vector) = segment.vector(vector_name, id)? {
-                                        selected_vectors.insert(vector_name.into(), vector.into());
+                                        selected_vectors.insert(vector_name.into(), vector);
                                     }
                                 }
                                 Some(selected_vectors.into())
@@ -567,6 +567,7 @@ fn is_search_optimized(
         .get(vector_name)
         .ok_or_else(vector_name_error)?;
 
+    // TODO(sparse) do we need some sparse vector check here?
     let vector_size = segment
         .config()
         .vector_data
