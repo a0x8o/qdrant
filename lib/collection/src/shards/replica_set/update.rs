@@ -247,10 +247,10 @@ impl ShardReplicaSet {
             .iter()
             .any(|(peer_id, _)| self.peer_is_active(peer_id))
         {
-            return Err(CollectionError::service_error(format!(
+            return Err(CollectionError::service_error(
                 "Failed to apply operation to at least one `Active` replica. \
-                 Consistency of this update is not guaranteed. Please retry."
-            )));
+                 Consistency of this update is not guaranteed. Please retry.",
+            ));
         }
 
         // there are enough successes, return the first one
