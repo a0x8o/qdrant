@@ -4,8 +4,8 @@ use common::types::ScoreType;
 use itertools::Itertools;
 
 use super::{Query, TransformInto};
-use crate::common::operation_error::{OperationError, OperationResult};
-use crate::data_types::vectors::{QueryVector, Vector, VectorType};
+use crate::common::operation_error::OperationResult;
+use crate::data_types::vectors::{QueryVector, Vector};
 
 #[derive(Debug, Clone)]
 pub struct ContextPair<T> {
@@ -113,29 +113,6 @@ impl<T> From<Vec<ContextPair<T>>> for ContextQuery<T> {
 impl From<ContextQuery<Vector>> for QueryVector {
     fn from(query: ContextQuery<Vector>) -> Self {
         QueryVector::Context(query)
-    }
-}
-
-impl TryInto<ContextPair<VectorType>> for ContextPair<Vector> {
-    type Error = OperationError;
-
-    fn try_into(self) -> Result<ContextPair<VectorType>, Self::Error> {
-        Ok(ContextPair {
-            positive: self.positive.try_into()?,
-            negative: self.negative.try_into()?,
-        })
-    }
-}
-
-impl TryInto<ContextQuery<VectorType>> for ContextQuery<Vector> {
-    type Error = OperationError;
-
-    fn try_into(self) -> Result<ContextQuery<VectorType>, Self::Error> {
-        let mut pairs: Vec<ContextPair<VectorType>> = Default::default();
-        for pair in &self.pairs {
-            pairs.push(pair.clone().try_into()?);
-        }
-        Ok(ContextQuery { pairs })
     }
 }
 
