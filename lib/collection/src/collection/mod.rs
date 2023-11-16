@@ -451,7 +451,7 @@ impl Collection {
         let shard_holder = self.shards_holder.read().await;
         let get_shard_transfer = |key| shard_holder.get_transfer(&key);
         for replica_set in shard_holder.all_shards() {
-            replica_set.sync_local_state(get_shard_transfer).await?;
+            replica_set.sync_local_state(get_shard_transfer)?;
         }
 
         // Check for un-reported finished transfers
